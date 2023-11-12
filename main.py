@@ -36,29 +36,30 @@ css_selector = st.text_input("Enter the CSS selector")
 # Submit button
 if st.button("Submit"):
     if uploaded_file and css_selector:
-        valid_content = ""
-        invalid_content = ""
-        urls = uploaded_file.getvalue().decode("utf-8").splitlines()
-        progress_bar = st.progress(0)
-        for i, url in enumerate(urls):
-            title, markdown_content, is_valid = extract_and_convert(url, css_selector)
-            if is_valid:
-                valid_content += f"標題：{title}\n{markdown_content}\n====================\n"
-            else:
-                invalid_content += f"{url}\n"
-            progress_bar.progress((i + 1) / len(urls))
+        with st.spinner("Processing... Please wait"):
+            valid_content = ""
+            invalid_content = ""
+            urls = uploaded_file.getvalue().decode("utf-8").splitlines()
+            progress_bar = st.progress(0)
+            for i, url in enumerate(urls):
+                title, markdown_content, is_valid = extract_and_convert(url, css_selector)
+                if is_valid:
+                    valid_content += f"標題：{title}\n{markdown_content}\n====================\n"
+                else:
+                    invalid_content += f"{url}\n"
+                progress_bar.progress((i + 1) / len(urls))
 
-        # Display download buttons
-        st.download_button(
-            label="Download Valid Data as TXT",
-            data=valid_content.encode('utf-8'),
-            file_name="valid_data.txt",
-            mime="text/plain"
-        )
+            # Display download buttons
+            st.download_button(
+                label="Download Valid Data as TXT",
+                data=valid_content.encode('utf-8'),
+                file_name="valid_data.txt",
+                mime="text/plain"
+            )
 
-        st.download_button(
-            label="Download Invalid Pages as TXT",
-            data=invalid_content.encode('utf-8'),
-            file_name="invalid_pages.txt",
-            mime="text/plain"
-        )
+            st.download_button(
+                label="Download Invalid Pages as TXT",
+                data=invalid_content.encode('utf-8'),
+                file_name="invalid_pages.txt",
+                mime="text/plain"
+            )
