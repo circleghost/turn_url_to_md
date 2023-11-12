@@ -25,18 +25,18 @@ def extract_and_convert(url, selector):
         return 'No Title', str(e), False
 
 # Streamlit interface
-st.title('URL Content Extractor')
+st.title('網址批量內容抓取器')
 
 # File uploader
-uploaded_file = st.file_uploader("Upload a file containing URLs (one per line)", type="txt")
+uploaded_file = st.file_uploader("請上傳一個包含網址的 txt 檔案（每行一個）", type="txt")
 
 # CSS Selector input
-css_selector = st.text_input("Enter the CSS selector")
+css_selector = st.text_input("請輸入 CSS 選擇器")
 
 # Submit button
 if st.button("Submit"):
     if uploaded_file and css_selector:
-        with st.spinner("Processing... Please wait"):
+        with st.spinner("知識庫產生中... 請稍候"):
             valid_content = ""
             invalid_content = ""
             urls = uploaded_file.getvalue().decode("utf-8").splitlines()
@@ -51,12 +51,12 @@ if st.button("Submit"):
 
             # Display valid data download button
             st.download_button(
-                label="Download Valid Data as TXT",
+                label="下載你的知識庫吧！",
                 data=valid_content.encode('utf-8'),
                 file_name="valid_data.txt",
                 mime="text/plain"
             )
 
             # Display invalid data
-            st.subheader("Invalid Pages")
+            st.subheader("以下可能是網址錯誤，或是網頁內容未有 CSS 選擇器")
             st.text(invalid_content)
