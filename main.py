@@ -11,17 +11,18 @@ def extract_and_convert(url, selector):
 
         soup = BeautifulSoup(response.content, 'html.parser')
         selected_content = soup.select_one(selector)
-        title = soup.find('title').get_text() if soup.find('title') else 'No Title'
+        title_text = soup.find('title').get_text() if soup.find('title') else 'No Title'
+        title = f"[{title_text}]({url})"  # Markdown format for title with URL
 
         if selected_content:
             converter = html2text.HTML2Text()
             converter.ignore_links = False
             markdown = converter.handle(str(selected_content))
-            return title, markdown
+            return title, markdown, True
         else:
-            return title, 'No content found for the provided CSS selector.'
+            return title, 'No content found for the provided CSS selector.', False
     except Exception as e:
-        return 'No Title', str(e)
+        return 'No Title', str(e), False
 
 # Streamlit interface
 st.title('URL Content Extractor')
@@ -32,18 +33,30 @@ uploaded_file = st.file_uploader("Upload a file containing URLs (one per line)",
 # CSS Selector input
 css_selector = st.text_input("Enter the CSS selector")
 
-# Process button
-if st.button("Extract Content"):
-    if uploaded_file and css_selector:
-        content = ""
-        for url in uploaded_file.getvalue().decode("utf-8").splitlines():
-            title, markdown_content = extract_and_convert(url, css_selector)
-            content += f"原文網址：{url}\n標題：{title}\n{markdown_content}\n====================\n"
-        
-        # Download link
+if uploaded_file and css_selector:
+    valid_content = ""
+    invalid_content = ""
+    for url in uploaded_file.getvalue().decode("utf-8").splitlines():
+        title, markdown_content, is_valid = extract_and_convert(url, css_selector)
+        if is_valid:
+            valid_content += f"標題：{title}\n{markdown_content}\n====================\n"
+        else:
+            invalid_content += f"{url}\n"
+
+    # Download button for valid data
+    if st.button("Download Valid Data"):
         st.download_button(
-            label="Download Content as TXT",
-            data=content.encode('utf-8'),
-            file_name="extracted_content.txt",
+            label="Download Valid Data as TXT",
+            data=valid_content.encode('utf-8'),
+            file_name="valid_data.txt",
+            mime="text/plain"
+        )
+
+    # Download button for invalid pages
+    if st.button("Download Invalid Pages"):
+        st.download_button(
+            label="Download Invalid Pages as TXT",
+            data=invalid_content.encode('utf-8'),
+            file_name="invalid_pages.txt",
             mime="text/plain"
         )
