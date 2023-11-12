@@ -46,10 +46,10 @@ if st.button("Submit"):
                 if is_valid:
                     valid_content += f"標題：{title}\n{markdown_content}\n====================\n"
                 else:
-                    invalid_content += f"{url}\n"
+                    invalid_content += f"無效頁面：{url}\n"
                 progress_bar.progress((i + 1) / len(urls))
 
-            # Display download buttons
+            # Display valid data download button
             st.download_button(
                 label="Download Valid Data as TXT",
                 data=valid_content.encode('utf-8'),
@@ -57,9 +57,6 @@ if st.button("Submit"):
                 mime="text/plain"
             )
 
-            st.download_button(
-                label="Download Invalid Pages as TXT",
-                data=invalid_content.encode('utf-8'),
-                file_name="invalid_pages.txt",
-                mime="text/plain"
-            )
+            # Display invalid data
+            st.subheader("Invalid Pages")
+            st.text(invalid_content)
