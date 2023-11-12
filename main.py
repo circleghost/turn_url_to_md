@@ -2,7 +2,6 @@ import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 import html2text
-from io import StringIO
 
 # Function to extract and convert content
 def extract_and_convert(url, selector):
@@ -44,7 +43,7 @@ if st.button("Extract Content"):
         # Download link
         st.download_button(
             label="Download Content as TXT",
-            data=StringIO(content),
+            data=content.encode('utf-8'),
             file_name="extracted_content.txt",
             mime="text/plain"
         )
