@@ -33,18 +33,22 @@ uploaded_file = st.file_uploader("Upload a file containing URLs (one per line)",
 # CSS Selector input
 css_selector = st.text_input("Enter the CSS selector")
 
-if uploaded_file and css_selector:
-    valid_content = ""
-    invalid_content = ""
-    for url in uploaded_file.getvalue().decode("utf-8").splitlines():
-        title, markdown_content, is_valid = extract_and_convert(url, css_selector)
-        if is_valid:
-            valid_content += f"標題：{title}\n{markdown_content}\n====================\n"
-        else:
-            invalid_content += f"{url}\n"
+# Submit button
+if st.button("Submit"):
+    if uploaded_file and css_selector:
+        valid_content = ""
+        invalid_content = ""
+        urls = uploaded_file.getvalue().decode("utf-8").splitlines()
+        progress_bar = st.progress(0)
+        for i, url in enumerate(urls):
+            title, markdown_content, is_valid = extract_and_convert(url, css_selector)
+            if is_valid:
+                valid_content += f"標題：{title}\n{markdown_content}\n====================\n"
+            else:
+                invalid_content += f"{url}\n"
+            progress_bar.progress((i + 1) / len(urls))
 
-    # Download button for valid data
-    if st.button("Download Valid Data"):
+        # Display download buttons
         st.download_button(
             label="Download Valid Data as TXT",
             data=valid_content.encode('utf-8'),
@@ -52,8 +56,6 @@ if uploaded_file and css_selector:
             mime="text/plain"
         )
 
-    # Download button for invalid pages
-    if st.button("Download Invalid Pages"):
         st.download_button(
             label="Download Invalid Pages as TXT",
             data=invalid_content.encode('utf-8'),
